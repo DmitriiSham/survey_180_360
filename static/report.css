@@ -1,0 +1,56 @@
+@page {
+  size: A4;
+  margin: 15mm;
+}
+
+@media print {
+
+    html, body {
+        width: 210mm;
+        height: 297mm;
+    }
+
+    body {
+        madrgin: 0;
+        color: #000;
+        background-color: #fff;
+    }
+
+    #userform {
+        display: none !important;
+    }
+
+    #table_1,
+    #table_2,
+    #table_3 {
+        position: relative;
+        left: -10mm;
+        width: 190mm;
+    }
+}
+
+nav {
+    padding-left: 2em;
+    padding-right: 2em;
+}
+
+// #chartContainer {
+//     position: relative;
+//     height: 52vh;
+//     width: 52vw;
+// }
+
+#chartContainer {
+    height: 800px;
+    width: 800px;
+    background-color: rgba(255, 255, 255, 0);
+    margin: auto;
+}
+
+:root:not([data-theme=dark]), [data-theme=light] {
+    --pico-spacing: 0.2rem;
+}
+
+#table_3 .tdValue {
+    text-align: right;
+}
