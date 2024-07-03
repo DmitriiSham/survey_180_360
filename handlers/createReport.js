@@ -8,7 +8,6 @@ const htmlPage = (content, userName) => {
     const html = sample.html({
         lang: "ru",
         title: (userName ? `${userName} - Отчет` : "Отчет"),
-        // scripts: ["https://cdn.jsdelivr.net/npm/chart.js", "report.js"],
         scripts: ["chart.js", "report.js"],
         css: ["pico.min.css", "container.css", "report.css"],
         content: `${content}`,
@@ -37,15 +36,35 @@ OM.web("createReport", async (request) => {
     }
 
     const { report } = query; // id из селектора
-
+    
     const userMail = user && user.email ? user.email : null;
-    const listUsers = await getEmployee(om, userMail, ENV.MULTICUBE_EMPLOYEES_REPORT, ENV.MAIN_LIST_USERS, ENV.MAIN_LIST_USERS_FILTERPROPERTY);
+
+    const getListUsers = async (om) => getEmployee(om, userMail, ENV.MULTICUBE_EMPLOYEES_REPORT, ENV.MAIN_LIST_USERS, ENV.MAIN_LIST_USERS_FILTERPROPERTY);
+
+    const getLabelsEmployees = async (om) => {
+        return listPivotCreateRaw(om, ENV.MAIN_LIST_EMPLOYEES, ENV.MAIN_LIST_EMPLOYEES_VIEW).then((listEmployees) => {
+            return rowsCollectFromRaw(listEmployees);
+        });
+    };
+
+    const getParamsEmployees = async (om) => {
+        return listPivotCreateRaw(om, ENV.MAIN_LIST_EMPLOYEES, ENV.MAIN_LIST_EMPLOYEES_VIEW).then((listEmployees) => {
+            return rowsArrayTexts(listEmployees);
+        });
+    };
+
+    const resultsFirst = await Promise.all([
+        getListUsers(om),
+        getLabelsEmployees(om),
+        getParamsEmployees(om),
+
+    ])
+
+    const [listUsers, rowsLabelsEmployees, rowsParamsEmployees] = [resultsFirst[0], resultsFirst[1], resultsFirst[2]];
+
     const reportUser = listUsers.find(({ id }) => +id === +report);
     // return JSON.stringify(reportUser);
-
-    const pivotListEmployees = await listPivotCreateRaw(om, ENV.MAIN_LIST_EMPLOYEES, ENV.MAIN_LIST_EMPLOYEES_VIEW);// Справочник сотрудники
-    const rowsLabelsEmployees = await rowsCollectFromRaw(pivotListEmployees);
-    const rowsParamsEmployees = await rowsArrayTexts(pivotListEmployees);
+    
     const labelsEmployees = rowsLabelsEmployees.map(item => item[0])
     let employeesEntries = {};
     labelsEmployees.forEach((key, index) => {
@@ -72,8 +91,6 @@ OM.web("createReport", async (request) => {
         } = tableData;
 
         // return JSON.stringify(chartData);
-
-        // console.log(JSON.stringify(tableData));
 
         // chart data as json
         const dataScript = sample.element({
