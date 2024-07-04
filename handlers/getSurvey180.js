@@ -103,7 +103,7 @@ OM.web("getSurvey180", async (request) => {
         getCommonResults[4],
         getCommonResults[5],
     ];
-    // return JSON.stringify([data, listUsers, getText180, backgroundRoot, hexColorBackground, rowLabelFirst])
+    // return JSON.stringify([data, listUsers, getText180, backgroundRoot, rowsCubesColors,         rowLabelFirst])
 
     const hexColorBackground = rowsCubesColors.map((item) => item[0]);
     let hexColorBackgroundEntries = {};
