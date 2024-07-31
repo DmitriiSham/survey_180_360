@@ -1,8 +1,7 @@
-const {  lastProperty } = require("../modules/html.js");
+const { lastProperty } = require("../modules/html.js");
 const { Sample } = require("../modules/sample.umd.cjs");
 
 const sample = new Sample();
-
 
 // === RAW DATA ===
 
@@ -11,34 +10,34 @@ const rowsCollect = async (rawQuestionsArray, questionsArray) => {
         const raw = await chunk.rawDataAsync();
         questionsArray.push(raw.rowsHeaders());
     }
-}
+};
 
 const rowsCollectFromRaw = async (rawData) => {
     const questionsArray = rawData.rowsHeaders();
     return questionsArray;
-}
+};
 
 const rowsArray = async (rawQuestionsArray, questionsArray) => {
     for await (const chunk of rawQuestionsArray) {
         const raw = await chunk.rawDataAsync();
         questionsArray.push(raw.getRowsAsArray());
     }
-}
+};
 
 const rowsArrayFromRaw = async (rawData) => {
     const questionsArray = rawData.getRowsAsArray();
     return questionsArray;
-}
+};
 
 const rowsArrayValues = async (rawData) => {
     const questionsArray = rawData.getRawNativeValues();
     return questionsArray;
-}
+};
 
 const rowsArrayTexts = async (rawData) => {
     const questionsArray = rawData.getRawTexts();
     return questionsArray;
-}
+};
 
 // === COMMON ===
 
@@ -53,7 +52,7 @@ const pivotCreateGenerator = async (om, mc, view) => {
     const grid = await pivot.createAsync();
     const generator = grid.range().generator();
     return generator;
-}
+};
 
 const pivotCreateRaw = async (om, mc, view) => {
     const pivot = om.multicubes.multicubesTab().open(mc).pivot(view);
@@ -63,7 +62,7 @@ const pivotCreateRaw = async (om, mc, view) => {
         const raw = await chunk.rawDataAsync();
         return raw;
     }
-}
+};
 
 const pivotCreateMulticubesRaw = async (om) => {
     const pivot = om.multicubes.multicubesTab().pivot();
@@ -73,7 +72,7 @@ const pivotCreateMulticubesRaw = async (om) => {
         const raw = await chunk.rawDataAsync();
         return raw;
     }
-}
+};
 
 const filteredMcGenerator = async (om, mc, filter, view) => {
     const pivot = om.multicubes
@@ -84,7 +83,7 @@ const filteredMcGenerator = async (om, mc, filter, view) => {
     const grid = await pivot.createAsync();
     const generator = grid.range().generator();
     return generator;
-}
+};
 
 const filteredMcRaw = async (om, mc, filter, view) => {
     const pivot = om.multicubes
@@ -98,7 +97,7 @@ const filteredMcRaw = async (om, mc, filter, view) => {
         const raw = await chunk.rawDataAsync();
         return raw;
     }
-}
+};
 
 const listPivotCreate = async (om, list, view) => {
     const listTab = om.lists.listsTab().open(list).pivot(view);
@@ -106,7 +105,7 @@ const listPivotCreate = async (om, list, view) => {
     const listGenerator = listGrid.range().generator();
     const listLabels = await listGenerator[0].rowsAsync();
     return listLabels;
-}
+};
 
 const listPivotCreateRaw = async (om, list, view) => {
     const listTab = om.lists.listsTab().open(list).pivot(view);
@@ -116,7 +115,7 @@ const listPivotCreateRaw = async (om, list, view) => {
         const raw = await chunk.rawDataAsync();
         return raw;
     }
-}
+};
 
 // === EMPLOYEE ===
 
@@ -125,11 +124,15 @@ const getEmployee = async (om, userMail, multicube, list, filterProperty) => {
     const userMailCorrect = !!userMail ? userMail : "";
     const pivotEmployees = await listPivotCreateRaw(om, list);
     const usersRaw = await rowsArrayFromRaw(pivotEmployees);
-    const users = await rowsCollectFromRaw(pivotEmployees)
+    const users = await rowsCollectFromRaw(pivotEmployees);
     const filteredUsers = users.filter((item, index) => {
         const usersfilter = usersRaw[index];
-        return !filterProperty || (usersfilter && usersfilter[filterProperty] === "true")
+        return (
+            !filterProperty ||
+            (usersfilter && usersfilter[filterProperty] === "true")
+        );
     });
+    // return [userMailCorrect, pivotEmployees, usersRaw, users, filteredUsers, filterProperty]
     let userFilterId = 0;
     let usersItems = [];
     if (!!users) {
@@ -146,8 +149,10 @@ const getEmployee = async (om, userMail, multicube, list, filterProperty) => {
     }
     //забрать список сотрудников (id и label) из МК
     const pivotListEmployees = await filteredMcRaw(om, multicube, userFilterId);
-    const listEmployees = await rowsCollectFromRaw(pivotListEmployees);
-    // return listEmployees;
+    const listEmployees = !pivotListEmployees
+        ? []
+        : await rowsCollectFromRaw(pivotListEmployees);
+    // return [pivotListEmployees.length];
     if (!!userFilterId && listEmployees.length) {
         usersItems = listEmployees.map((item) => {
             const userItem = {};
@@ -233,7 +238,7 @@ const getDataSurvey = async (om, mc1, mc2, mc3, mc4) => {
         });
     });
     return questions;
-}
+};
 
 // === ANSWERS ===
 
@@ -244,9 +249,9 @@ const addTicketElement = async (om, list) => {
         .elementsCreator()
         .numeric()
         .setCount(1);
-    
+
     return await addElementToList.createAsync();
-}
+};
 
 const sendAnswer = async (
     om,
@@ -261,16 +266,13 @@ const sendAnswer = async (
     mcAnswers4,
     listFB,
     mcFilterEmployees,
-    listEmployees,
+    listEmployees
 ) => {
     const pivotListLabels = await listPivotCreateRaw(om, listSurveyQuestions);
     const listLabels = await rowsCollectFromRaw(pivotListLabels);
     const listQuestionsValues = listLabels.map((item) => item[0].longId);
 
-    const pivotListFeedback = await listPivotCreateRaw(
-        om,
-        listFB
-    );
+    const pivotListFeedback = await listPivotCreateRaw(om, listFB);
     const listFeedback = await rowsCollectFromRaw(pivotListFeedback);
 
     const listFeedbackItems = listFeedback.map((item) => {
@@ -291,7 +293,7 @@ const sendAnswer = async (
         om,
         userMail,
         mcFilterEmployees,
-        listEmployees,
+        listEmployees
     );
     // return employees;
     text.forEach((item) => {
@@ -375,11 +377,18 @@ const sendAnswer = async (
         await cb.applyAsync();
         return !cb.count();
     }
-}
+};
 
 // === REPORT ===
 
-const getReportData = async (om, mcMarks, mcFeedback, mcFeedbackCount, mcSettingsChart, selectedEmployee) => {
+const getReportData = async (
+    om,
+    mcMarks,
+    mcFeedback,
+    mcFeedbackCount,
+    mcSettingsChart,
+    selectedEmployee
+) => {
     const pivotCommonMarks = await filteredMcRaw(
         om,
         mcMarks, //ENV.MULTICUBE_COMMON_MARKS,
@@ -397,7 +406,7 @@ const getReportData = async (om, mcMarks, mcFeedback, mcFeedbackCount, mcSetting
     );
     const pivotSettingsChart = await pivotCreateRaw(
         om,
-        mcSettingsChart, //ENV.MULTICUBE_SETTING_CHART
+        mcSettingsChart //ENV.MULTICUBE_SETTING_CHART
     );
 
     const rowsLabelsChart = await rowsCollectFromRaw(pivotCommonMarks);
@@ -416,11 +425,11 @@ const getReportData = async (om, mcMarks, mcFeedback, mcFeedbackCount, mcSetting
         rowsTextFeedback,
         rowsLabelsCountMarks,
         rowsTextCountMarks,
-    }
-}
+    };
+};
 
 const createChartData = (reportData) => {
-    const { rowsMarksChart, rowsLabelsChart, rowsSettings } = reportData
+    const { rowsMarksChart, rowsLabelsChart, rowsSettings } = reportData;
 
     const filteredRowsMarks = rowsMarksChart.filter((item) =>
         item.includes("true")
@@ -461,13 +470,19 @@ const createChartData = (reportData) => {
         labels,
         datasets,
     };
-}
+};
 
 const createTableData = (reportData) => {
-    const { rowsLabelsFeedback, rowsTextFeedback, rowsLabelsCountMarks, rowsTextCountMarks } = reportData
+    const {
+        rowsLabelsFeedback,
+        rowsTextFeedback,
+        rowsLabelsCountMarks,
+        rowsTextCountMarks,
+    } = reportData;
 
     /* === Данные для таблицы с отзывами === */
-    const headerLabels = [ // шапки таблиц
+    const headerLabels = [
+        // шапки таблиц
         ...new Set(rowsLabelsFeedback.map((item) => item[0].label)),
     ];
     const rawLabelsFeedback = rowsLabelsFeedback.map((item) => item[1].label);
@@ -481,7 +496,9 @@ const createTableData = (reportData) => {
             flatRowLabelsFeedback.slice(i, i + chunkFeedback)
         );
         const feedbackTextFiltered = feedbackText.filter((item) => !!item);
-        const feedbackTextFilteredSet = feedbackTextFiltered.map((item) => [...new Set(item.split('\n\n'))].join(';\n'));
+        const feedbackTextFilteredSet = feedbackTextFiltered.map((item) =>
+            [...new Set(item.split("\n\n"))].join(";\n")
+        );
         const feedbackLabel = Array.from(
             rawLabelsFeedback.slice(i, i + chunkFeedback)
         ).filter((item, index) => !!feedbackText[index]);
@@ -502,8 +519,8 @@ const createTableData = (reportData) => {
         rowsHeaderFeedback,
         filteredRowsCountLabels,
         filteredRowsCountMarks,
-    }
-}
+    };
+};
 
 // просто функция для того, чтобы предлоги не отрывались от следующего слова
 const fixText = (text) => {
@@ -513,37 +530,65 @@ const fixText = (text) => {
 };
 
 // формируем таблицу по переданным данным
-const userTable = (rowsLabels, rowsArray, columnsLabels, caption, headerFirstColumn, total) => {
+const userTable = (
+    rowsLabels,
+    rowsArray,
+    columnsLabels,
+    caption,
+    headerFirstColumn,
+    total
+) => {
     // название (caption) таблицы
-    const captionElement = sample.element({ tag: "caption", content: sample.element({ tag: "h4", content: caption }) });
+    const captionElement = sample.element({
+        tag: "caption",
+        content: sample.element({ tag: "h4", content: caption }),
+    });
 
     // заголовок таблицы
     const headerCells = [headerFirstColumn, columnsLabels].map((item) =>
-        sample.element({ tag: "th", content: sample.element({ tag: "em", content: fixText(item) }) })
+        sample.element({
+            tag: "th",
+            content: sample.element({ tag: "em", content: fixText(item) }),
+        })
     );
     const headerRow = sample.element({
         tag: "tr",
         content: headerCells.join(""),
     });
-    const thead = sample.element({ tag: "thead", content: headerRow, style: { "--pico-background-color": "#dfe4ec" } });
+    const thead = sample.element({
+        tag: "thead",
+        content: headerRow,
+        style: { "--pico-background-color": "#dfe4ec" },
+    });
     const rows = rowsLabels.map((item, index) => {
-        return [item, rowsArray[index]]
+        return [item, rowsArray[index]];
     });
 
     // добавляет total строку
     let tfoot;
     if (total) {
-        const sumMarks = rowsArray.reduce((acc, item) => acc + item, 0)
-        const totalLabel = sample.element({ tag: "th", content: total })
-        const totalValue = sample.element({ tag: "td", content: sumMarks, className: "tdValue", })
-        tfoot = sample.element({ tag: "tfoot", content: `${totalLabel}${totalValue}` })
+        const sumMarks = rowsArray.reduce((acc, item) => acc + item, 0);
+        const totalLabel = sample.element({ tag: "th", content: total });
+        const totalValue = sample.element({
+            tag: "td",
+            content: sumMarks,
+            className: "tdValue",
+        });
+        tfoot = sample.element({
+            tag: "tfoot",
+            content: `${totalLabel}${totalValue}`,
+        });
     }
 
     // формируем построчно содержимое таблицы
     const tableRows = rows.map((item) => {
         const row = item.map((value, index) => {
             if (index) {
-                return sample.element({ tag: "td", content: value, className: "tdValue", });
+                return sample.element({
+                    tag: "td",
+                    content: value,
+                    className: "tdValue",
+                });
             }
             return sample.element({
                 tag: "td",
@@ -558,7 +603,9 @@ const userTable = (rowsLabels, rowsArray, columnsLabels, caption, headerFirstCol
     const tbody = sample.element({ tag: "tbody", content: tableRows.join("") });
 
     // собираем контент таблицы и возвращаем ее
-    const tableContent = tfoot ? `${captionElement}${thead}${tbody}${tfoot}` : `${captionElement}${thead}${tbody}`;
+    const tableContent = tfoot
+        ? `${captionElement}${thead}${tbody}${tfoot}`
+        : `${captionElement}${thead}${tbody}`;
 
     return sample.element({
         tag: "table",
@@ -578,37 +625,74 @@ const sortedSelect = (data, selectedUser) => {
         return 0;
     });
 
-    const options = [sample.option('Выберите пользователя', { selected: !selectedUser, disabled: "disabled", value: "", hidden: "hidden" })];
+    const options = [
+        sample.option("Выберите пользователя", {
+            selected: !selectedUser,
+            disabled: "disabled",
+            value: "",
+            hidden: "hidden",
+        }),
+    ];
     let optGrp = [];
     let optLabel = "";
 
     sortedData.forEach((item, index, data) => {
         if (!index || data[index].text[0] !== data[index - 1].text[0]) {
             if (optGrp.length && optLabel) {
-                options.push(sample.element({ tag: 'optgroup', content: optGrp.join('\n'), label: optLabel }));
+                options.push(
+                    sample.element({
+                        tag: "optgroup",
+                        content: optGrp.join("\n"),
+                        label: optLabel,
+                    })
+                );
             }
             optGrp = [];
             optLabel = data[index].text[0];
         }
-        const selected = selectedUser && selectedUser.id && +item.id === +selectedUser.id;
+        const selected =
+            selectedUser && selectedUser.id && +item.id === +selectedUser.id;
         optGrp.push(sample.option(item.text, { selected, value: item.id }));
     });
-    options.push(sample.element({ tag: 'optgroup', content: optGrp.join('\n'), label: optLabel }));
+    options.push(
+        sample.element({
+            tag: "optgroup",
+            content: optGrp.join("\n"),
+            label: optLabel,
+        })
+    );
 
-    return sample.select(options.join('\n'), { id: "report", name: "report" });
-}
+    return sample.select(options.join("\n"), { id: "report", name: "report" });
+};
 
 const reportNav = (select, selectedUser, paramsReportUser) => {
-    const loader = `<div id="loader" aria-busy="true" style="display: none;"></div>`
-    const printButton = sample.button('Print/PDF', { onClick: "print();" })
-    const user = sample.strong(selectedUser && !!selectedUser.text ? selectedUser.text : 'Выберите пользователя');
-    const userUl = sample.ul(sample.li(sample.element({ tag: 'h4', content: user, style: { "margin-bottom": 0 } })));
-    const paramsUser = !!paramsReportUser ? sample.div(`${paramsReportUser[0]}, ${paramsReportUser[1]}`) : "";
+    const loader = `<div id="loader" aria-busy="true" style="display: none;"></div>`;
+    const printButton = sample.button("Print/PDF", { onClick: "print();" });
+    const user = sample.strong(
+        selectedUser && !!selectedUser.text
+            ? selectedUser.text
+            : "Выберите пользователя"
+    );
+    const userUl = sample.ul(
+        sample.li(
+            sample.element({
+                tag: "h4",
+                content: user,
+                style: { "margin-bottom": 0 },
+            })
+        )
+    );
+    const paramsUser = !!paramsReportUser
+        ? sample.div(`${paramsReportUser[0]}, ${paramsReportUser[1]}`)
+        : "";
     const userDiv = sample.div(`${userUl}${paramsUser}`);
-    const selectUl = sample.ul(`${sample.li(loader)}${sample.li(select)}${sample.li(printButton)}`, { id: "userform" });
+    const selectUl = sample.ul(
+        `${sample.li(loader)}${sample.li(select)}${sample.li(printButton)}`,
+        { id: "userform" }
+    );
 
-    return sample.element({ tag: 'nav', content: `${userDiv}${selectUl}` });
-}
+    return sample.element({ tag: "nav", content: `${userDiv}${selectUl}` });
+};
 
 module.exports = {
     rowsCollect,
@@ -635,4 +719,4 @@ module.exports = {
     userTable,
     sortedSelect,
     reportNav,
-}
+};
