@@ -207,6 +207,7 @@ OM.web("createReport", async (request) => {
         tag: "main",
         className: "container",
         content: content.join("\n"),
+        "data-theme": "light",
     });
 
     return reportUser

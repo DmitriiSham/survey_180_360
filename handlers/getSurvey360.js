@@ -181,6 +181,7 @@ OM.web("getSurvey360", async (request) => {
         tag: "main",
         content: `${section}${dialog}`,
         className: "container",
+        "data-theme": "light",
     });
     const html = sample.html({
         lang: "ru",

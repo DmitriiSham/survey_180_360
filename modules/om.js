@@ -171,21 +171,11 @@ const getDataSurvey = async (om, mc1, mc2, mc3, mc4) => {
     const rowsLabelsQuestions = [];
     const rowsRequired = [];
 
-    const pivotCommonMarks = await pivotCreateGenerator(om, mc1);
-    await rowsCollect(pivotCommonMarks, rowsLabelsQuestions);
-    await rowsArray(pivotCommonMarks, rowsRequired);
-
-    const pivotSecondPart = await pivotCreateGenerator(om, mc2);
-    await rowsCollect(pivotSecondPart, rowsLabelsQuestions);
-    await rowsArray(pivotSecondPart, rowsRequired);
-
-    const pivotThirdPart = await pivotCreateGenerator(om, mc3);
-    await rowsCollect(pivotThirdPart, rowsLabelsQuestions);
-    await rowsArray(pivotThirdPart, rowsRequired);
-
-    const pivotFouthPart = await pivotCreateGenerator(om, mc4);
-    await rowsCollect(pivotFouthPart, rowsLabelsQuestions);
-    await rowsArray(pivotFouthPart, rowsRequired);
+    for (const item of [mc1, mc2, mc3, mc4]) {
+        const pivot = await pivotCreateGenerator(om, item);
+        await rowsCollect(pivot, rowsLabelsQuestions);
+        await rowsArray(pivot, rowsRequired);
+    }
 
     // return rowsLabelsQuestions
     rowsLabelsQuestions.forEach((rawQuersions, index1) => {

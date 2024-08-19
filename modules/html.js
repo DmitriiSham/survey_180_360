@@ -1,4 +1,5 @@
 const { Sample } = require("./sample.umd.cjs");
+const ENV = require("../ENV");
 
 const sample = new Sample();
 
@@ -11,15 +12,14 @@ function getRandomInt(min, max) {
 const questionChoice = (item, firstHeader, hexColorBackgroundEntries) => {
     // const testSelectedIndex = getRandomInt(0, item.options.length - 1); // предварительно выбранный пункт
     const options = item.options.map((option, index) => {
-        const input =
-            sample.element({
-                tag: "input",
-                type: item.type,
-                required: option.required,
-                name: item.id,
-                value: option.id,
-                onchange: `changeBackground(this,${firstHeader},'${hexColorBackgroundEntries}')`,
-            });
+        const input = sample.element({
+            tag: "input",
+            type: item.type,
+            required: option.required,
+            name: item.id,
+            value: option.id,
+            onchange: `changeBackground(this,${firstHeader},'${hexColorBackgroundEntries}')`,
+        });
         // index === testSelectedIndex
         //     ? sample.element({
         //         tag: "input",
@@ -56,17 +56,18 @@ const questionChoice = (item, firstHeader, hexColorBackgroundEntries) => {
 const questionText = (item) => {
     const header = sample.strong(item.text);
     const input = sample.element({
-        tag: "input",
+        tag: "textarea",
         type: item.type,
         required: item.required,
         name: item.id,
+        rows: 3,
     });
     const label = sample.element({
         tag: "label",
         for: item.id,
         content: header,
     });
-    const div = sample.div(`${label}${input}`);
+    const div = sample.div(`${label}${input}</textarea>`);
     return sample.element({ tag: "article", content: div });
 };
 
@@ -95,7 +96,6 @@ const questionSelect = (userItems, item, options) => {
     return sample.element({ tag: "article", content: div });
 };
 
-
 const lastProperty = (array) => {
     const settingsArr = Object.keys(array);
     const property = settingsArr[settingsArr.length - 1];
@@ -113,8 +113,8 @@ const rbStyle = (rgbaColor, hexColorRadio) => {
         --pico-border-color: ${hexColorRadio};
         accent-color: ${hexColorRadio}; 
         };\n`,
-    })
-}
+    });
+};
 
 function redirectToSign(params) {
     const { appId, path } = params;
@@ -143,9 +143,9 @@ function redirectToSign(params) {
 function hexToRgba(hex, alpha) {
     // Убираем символ '#', если он есть
     if (hex) {
-        hex = hex.replace(/^#/, '');
+        hex = hex.replace(/^#/, "");
     } else {
-        hex = "8068BC"
+        hex = "8068BC";
     }
     // Разбиваем HEX на составляющие: R, G, B
     let r = parseInt(hex.substring(0, 2), 16);
@@ -165,4 +165,4 @@ module.exports = {
     rbStyle,
     redirectToSign,
     hexToRgba,
-}
+};
