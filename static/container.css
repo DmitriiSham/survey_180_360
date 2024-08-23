@@ -1,47 +1,50 @@
 @media (min-width: 576px) {
     .container {
-        max-width:480px;
+        max-width: 480px;
         padding-right: 0;
-        padding-left: 0
+        padding-left: 0;
     }
 }
 
 @media (min-width: 768px) {
     .container {
-        max-width:640px
+        max-width: 640px;
     }
 }
 
 @media (min-width: 1024px) {
     .container {
-        max-width:720px
+        max-width: 720px;
     }
 }
 
 @media (min-width: 1280px) {
     .container {
-        max-width:800px
+        max-width: 800px;
     }
 }
 
 @media (min-width: 1536px) {
     .container {
-        max-width:960px
+        max-width: 960px;
     }
 }
 
 .hidden {
-  display: none;
+    display: none;
 }
 
 .hiddenTest {
-  visibility: hidden;
+    visibility: hidden;
 }
 
 article {
-background-color: #fbfcfc;
+    background-color: #fbfcfc;
 }
 
-:root:not([data-theme=dark]), [data-theme=light] {
-    --pico-box-shadow: 200.0145rem 0.029rem 0.174rem rgba(129, 145, 181, 0.01698),0.0335rem 0.067rem 0.402rem rgba(129, 145, 181, 100.024)
+:root:not([data-theme="dark"]),
+[data-theme="light"] {
+    --pico-box-shadow: 200.0145rem 0.029rem 0.174rem
+            rgba(129, 145, 181, 0.01698),
+        0.0335rem 0.067rem 0.402rem rgba(129, 145, 181, 100.024);
 }

@@ -15,13 +15,13 @@ const {
     pivotCreateRaw,
     rowsCollectFromRaw,
     rowsArrayTexts,
-    rowsArrayValues,
+    pivotCreateMulticubesRaw,
 } = require("../modules/om.js");
 
 const LZString = require("../static/lz-string.min.js");
 const sample = new Sample();
 
-OM.web("getSurvey360", async (request) => {
+OM.web("getSurvey180", async (request) => {
     const { user, params } = request;
 
     if (!user) {
@@ -34,15 +34,17 @@ OM.web("getSurvey360", async (request) => {
         ENV.TOKEN,
         ENV.MODEL_ID
     );
+    // return JSON.stringify(await om.common.modelInfo().nameAsync())
 
     const userMail = user && user.email ? user.email : null;
+    // const userMail = "a.tomin@optimacros.com"
 
     const getData = async (om) =>
         getDataSurvey(
             om,
             ENV.MULTICUBE_FIRST,
-            ENV.MULTICUBE_SETTINGS_360,
-            ENV.MULTICUBE_QUESTIONS_360,
+            ENV.MULTICUBE_SETTINGS_180,
+            ENV.MULTICUBE_QUESTIONS_180,
             ENV.MULTICUBE_COMMON_TEXTAREA
         );
 
@@ -53,12 +55,10 @@ OM.web("getSurvey360", async (request) => {
             ENV.MULTICUBE_FILTER_EMPLOYEES,
             ENV.MAIN_LIST_USERS
         );
-    // return JSON.stringify(listUsers);
-    const getText360Model = async (om) =>
-        getTextFields(om, ENV.MULTICUBE_TEXT_360);
-
+    // return JSON.stringify(await getListUsers(om));
     const getText180Model = async (om) =>
         getTextFields(om, ENV.MULTICUBE_TEXT_180);
+    // return JSON.stringify(await getText180Model(om));
 
     const getBackgroundRoot = async (om) =>
         pivotCreateRaw(om, ENV.MULTICUBE_COLOR_SCHEME)
@@ -75,7 +75,7 @@ OM.web("getSurvey360", async (request) => {
         });
 
     const getRowLabelFirst = async (om) =>
-        pivotCreateRaw(om, ENV.MULTICUBE_SETTINGS_360).then(
+        pivotCreateRaw(om, ENV.MULTICUBE_SETTINGS_180).then(
             (pivotHeadersSettings180) => {
                 return rowsCollectFromRaw(pivotHeadersSettings180);
             }
@@ -84,7 +84,6 @@ OM.web("getSurvey360", async (request) => {
     const getCommonResults = await Promise.all([
         getData(om),
         getListUsers(om),
-        getText360Model(om),
         getText180Model(om),
         getBackgroundRoot(om),
         getRowsCubesColors(om),
@@ -94,7 +93,6 @@ OM.web("getSurvey360", async (request) => {
     const [
         data,
         listUsers,
-        getText360,
         getText180,
         backgroundRoot,
         rowsCubesColors,
@@ -106,9 +104,8 @@ OM.web("getSurvey360", async (request) => {
         getCommonResults[3],
         getCommonResults[4],
         getCommonResults[5],
-        getCommonResults[6],
     ];
-    // return JSON.stringify([data, listUsers, getText180, backgroundRoot, hexColorBackground, rowLabelFirst])
+    // return JSON.stringify([data, listUsers, getText180, backgroundRoot, rowsCubesColors,         rowLabelFirst])
 
     const hexColorBackground = rowsCubesColors.map((item) => item[0]);
     let hexColorBackgroundEntries = {};
@@ -137,8 +134,8 @@ OM.web("getSurvey360", async (request) => {
         }
     });
     /* === HTML Формы === */
-    const header1 = sample.element({ tag: "h1", content: getText360[0][0] });
-    const header2 = sample.div(getText360[1][0]);
+    const header1 = sample.element({ tag: "h1", content: getText180[0][0] });
+    const header2 = sample.div(getText180[1][0]);
     const header = `${header1}${header2}`;
     const button = sample.button("Отправить", {
         type: "submit",
@@ -150,7 +147,7 @@ OM.web("getSurvey360", async (request) => {
         },
     });
     const form = sample.form(`${formContent.join("")}${button}`, {
-        id: "form360",
+        id: "form180",
     });
     const section = sample.element({
         tag: "section",
@@ -167,13 +164,12 @@ OM.web("getSurvey360", async (request) => {
     const articleLast = sample.element({
         tag: "article",
         content: `${lastHeader}${modalText}`,
-        // className: "hidden",
         id: "lastArticle",
     });
+    // return JSON.stringify(lastHeaderH)
     const dialog = sample.element({
         tag: "dialog",
         content: articleLast,
-        // className: "hidden",
         id: "modalEnd",
     });
     const styleRadio = rbStyle(rgbaColor, hexColorRadio);
@@ -185,12 +181,11 @@ OM.web("getSurvey360", async (request) => {
     });
     const html = sample.html({
         lang: "ru",
-        title: "Опрос 360",
+        title: "Опрос 180",
         scripts: ["lz-string.min.js", "app.js"],
         css: ["pico.min.css", "container.css"],
         content: `${styleRadio}${container}`,
     });
-
     return {
         headers: {
             contentType: "text/html",
