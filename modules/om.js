@@ -487,7 +487,7 @@ const createTableData = (reportData) => {
         );
         const feedbackTextFiltered = feedbackText.filter((item) => !!item);
         const feedbackTextFilteredSet = feedbackTextFiltered.map((item) =>
-            [...new Set(item.split("\n\n"))].join(";\n")
+            [...new Set(item.split("\n"))].join("</br>")
         );
         const feedbackLabel = Array.from(
             rawLabelsFeedback.slice(i, i + chunkFeedback)
