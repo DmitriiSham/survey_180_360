@@ -140,7 +140,7 @@ OM.web("getSurvey180", async (request) => {
     const button = sample.button("Отправить", {
         type: "submit",
         id: "buttonSend",
-        ariaBusy: "false",
+        "aria-busy": "false",
         style: {
             "--pico-background-color": hexColorButton,
             "--pico-border-color": hexColorButton,
@@ -159,12 +159,47 @@ OM.web("getSurvey180", async (request) => {
         tag: "h3",
         content: getText180[2][0],
     });
-    const lastHeader = sample.element({ tag: "header", content: lastHeaderH });
-    const modalText = sample.p(getText180[5][0]);
+    const headerErrorH = sample.element({
+        tag: "h3",
+        content: "⚠️ Ошибка!",
+        style: {
+            display: "flex",
+            "justify-content": "center",
+        },
+    });
+    const buttonCloseModal = sample.button("", {
+        "data-target": "modalError",
+        onclick: "closeModal(this.dataset.target)",
+        rel: "prev",
+    });
+    // const buttonConfirmModal = sample.button("Попробовать еще раз", {
+    //     "data-target": "modalError",
+    //     onclick: "closeModal(this.dataset.target)",
+    //     autofocus: true,
+    //     style: {
+    //         "--pico-background-color": hexColorButton,
+    //         "--pico-border-color": hexColorButton,
+    //     },
+    // });
+    const lastHeader = sample.element({
+        tag: "header",
+        content: `${lastHeaderH}`,
+    });
+    const modalHeaderError = sample.element({
+        tag: "header",
+        content: `${buttonCloseModal}</button>${headerErrorH}`,
+    });
+    const modalText = sample.p(getText180[5][0], { id: "modalMessage" });
+    const modalTextError = sample.p("", { id: "modalMessageError" });
     const articleLast = sample.element({
         tag: "article",
         content: `${lastHeader}${modalText}`,
         id: "lastArticle",
+    });
+    const articleError = sample.element({
+        tag: "article",
+        content: `${modalHeaderError}${modalTextError}`,
+        id: "articleError",
     });
     // return JSON.stringify(lastHeaderH)
     const dialog = sample.element({
@@ -172,10 +207,15 @@ OM.web("getSurvey180", async (request) => {
         content: articleLast,
         id: "modalEnd",
     });
+    const dialogError = sample.element({
+        tag: "dialog",
+        content: articleError,
+        id: "modalError",
+    });
     const styleRadio = rbStyle(rgbaColor, hexColorRadio);
     const container = sample.element({
         tag: "main",
-        content: `${section}${dialog}`,
+        content: `${section}${dialog}${dialogError}`,
         className: "container",
         "data-theme": "light",
     });

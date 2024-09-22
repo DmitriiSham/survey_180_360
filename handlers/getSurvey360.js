@@ -143,7 +143,7 @@ OM.web("getSurvey360", async (request) => {
     const button = sample.button("Отправить", {
         type: "submit",
         id: "buttonSend",
-        ariaBusy: "false",
+        "aria-busy": "false",
         style: {
             "--pico-background-color": hexColorButton,
             "--pico-border-color": hexColorButton,
@@ -162,13 +162,36 @@ OM.web("getSurvey360", async (request) => {
         tag: "h3",
         content: getText180[2][0],
     });
+    const headerErrorH = sample.element({
+        tag: "h3",
+        content: "⚠️ Ошибка!",
+        style: {
+            display: "flex",
+            "justify-content": "center",
+        },
+    });
+    const buttonCloseModal = sample.button("", {
+        "data-target": "modalError",
+        onclick: "closeModal(this.dataset.target)",
+        rel: "prev",
+    });
     const lastHeader = sample.element({ tag: "header", content: lastHeaderH });
+    const modalHeaderError = sample.element({
+        tag: "header",
+        content: `${buttonCloseModal}</button>${headerErrorH}`,
+    });
     const modalText = sample.p(getText180[5][0]);
+    const modalTextError = sample.p("", { id: "modalMessageError" });
     const articleLast = sample.element({
         tag: "article",
         content: `${lastHeader}${modalText}`,
         // className: "hidden",
         id: "lastArticle",
+    });
+    const articleError = sample.element({
+        tag: "article",
+        content: `${modalHeaderError}${modalTextError}`,
+        id: "articleError",
     });
     const dialog = sample.element({
         tag: "dialog",
@@ -176,10 +199,15 @@ OM.web("getSurvey360", async (request) => {
         // className: "hidden",
         id: "modalEnd",
     });
+    const dialogError = sample.element({
+        tag: "dialog",
+        content: articleError,
+        id: "modalError",
+    });
     const styleRadio = rbStyle(rgbaColor, hexColorRadio);
     const container = sample.element({
         tag: "main",
-        content: `${section}${dialog}`,
+        content: `${section}${dialog}${dialogError}`,
         className: "container",
         "data-theme": "light",
     });
