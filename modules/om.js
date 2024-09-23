@@ -5,73 +5,115 @@ const sample = new Sample();
 
 // === RAW DATA ===
 
+// const rowsCollect = async (rawQuestionsArray, questionsArray) => {
+//     for await (const chunk of rawQuestionsArray) {
+//         const raw = await chunk.rawDataAsync();
+//         questionsArray.push(raw.rowsHeaders());
+//     }
+// };
+
 const rowsCollect = async (rawQuestionsArray, questionsArray) => {
-    for await (const chunk of rawQuestionsArray) {
-        const raw = await chunk.rawDataAsync();
-        questionsArray.push(raw.rowsHeaders());
-    }
+    const raw = await rawQuestionsArray.rows().headerData;
+    questionsArray.push(raw);
 };
 
-const rowsCollectFromRaw = async (rawData) => {
-    const questionsArray = rawData.rowsHeaders();
-    return questionsArray;
-};
+// const rowsCollectFromRaw = async (rawData) => {
+//     const questionsArray = rawData.rowsHeaders();
+//     return questionsArray;
+// };
+
+const rowsCollectFromRaw = async (rawData) => rawData.rows().headerData;
 
 const rowsArray = async (rawQuestionsArray, questionsArray) => {
-    for await (const chunk of rawQuestionsArray) {
-        const raw = await chunk.rawDataAsync();
-        questionsArray.push(raw.getRowsAsArray());
-    }
+    const raw = await rawQuestionsArray.getRowsAsArray();
+    questionsArray.push(raw);
 };
 
-const rowsArrayFromRaw = async (rawData) => {
-    const questionsArray = rawData.getRowsAsArray();
-    return questionsArray;
-};
+// const rowsArrayFromRaw = async (rawData) => {
+//     const questionsArray = rawData.getRowsAsArray();
+//     return questionsArray;
+// };
 
-const rowsArrayValues = async (rawData) => {
-    const questionsArray = rawData.getRawNativeValues();
-    return questionsArray;
-};
+const rowsArrayFromRaw = async (rawData) => rawData.getRowsAsArray();
 
-const rowsArrayTexts = async (rawData) => {
-    const questionsArray = rawData.getRawTexts();
-    return questionsArray;
-};
+// const rowsArrayValues = async (rawData) => {
+//     const questionsArray = rawData.getRawNativeValues();
+//     return questionsArray;
+// };
+
+const rowsArrayValues = async (rawData) => rawData.getRawNativeValues();
+
+// const rowsArrayTexts = async (rawData) => {
+//     const questionsArray = rawData.getRawTexts();
+//     return questionsArray;
+// };
+
+const rowsArrayTexts = async (rawData) => rawData.getRawTexts();
 
 // === COMMON ===
 
+// const getTextFields = async (om, mc) => {
+//     const pivotCommonMarks = await pivotCreateRaw(om, mc);
+//     const rowsRequired = await rowsArrayFromRaw(pivotCommonMarks);
+//     return rowsRequired;
+// };
+
 const getTextFields = async (om, mc) => {
-    const pivotCommonMarks = await pivotCreateRaw(om, mc);
-    const rowsRequired = await rowsArrayFromRaw(pivotCommonMarks);
+    const rowsRequired = await pivotCreateRaw(om, mc).then((pivotCommonMarks) =>
+        rowsArrayTexts(pivotCommonMarks)
+    );
     return rowsRequired;
 };
+
+// const pivotCreateGenerator = async (om, mc, view) => {
+//     const pivot = om.multicubes.multicubesTab().open(mc).pivot(view);
+//     const grid = await pivot.createAsync();
+//     const generator = grid.range().generator();
+//     return generator;
+// };
 
 const pivotCreateGenerator = async (om, mc, view) => {
     const pivot = om.multicubes.multicubesTab().open(mc).pivot(view);
     const grid = await pivot.createAsync();
-    const generator = grid.range().generator();
-    return generator;
+    const rd = grid.rawData();
+    const raw = await rd.readerAsync();
+    return raw;
 };
+
+// const pivotCreateRaw = async (om, mc, view) => {
+//     const pivot = om.multicubes.multicubesTab().open(mc).pivot(view);
+//     const grid = await pivot.createAsync();
+//     const generator = grid.range().generator();
+//     for await (const chunk of generator) {
+//         const raw = await chunk.rawDataAsync();
+//         return raw;
+//     }
+// };
 
 const pivotCreateRaw = async (om, mc, view) => {
     const pivot = om.multicubes.multicubesTab().open(mc).pivot(view);
     const grid = await pivot.createAsync();
-    const generator = grid.range().generator();
-    for await (const chunk of generator) {
-        const raw = await chunk.rawDataAsync();
-        return raw;
-    }
+    const rd = grid.rawData();
+    const raw = await rd.readerAsync();
+    return raw;
 };
+
+// const pivotCreateMulticubesRaw = async (om) => {
+//     const pivot = om.multicubes.multicubesTab().pivot();
+//     const grid = await pivot.createAsync();
+//     const generator = grid.range().generator();
+//     for await (const chunk of generator) {
+//         const raw = await chunk.rawDataAsync();
+//         return raw;
+//     }
+// };
 
 const pivotCreateMulticubesRaw = async (om) => {
     const pivot = om.multicubes.multicubesTab().pivot();
     const grid = await pivot.createAsync();
-    const generator = grid.range().generator();
-    for await (const chunk of generator) {
-        const raw = await chunk.rawDataAsync();
-        return raw;
-    }
+    const rd = grid.rawData();
+    const raw = await rd.readerAsync();
+    return raw;
 };
 
 const filteredMcGenerator = async (om, mc, filter, view) => {
@@ -85,6 +127,20 @@ const filteredMcGenerator = async (om, mc, filter, view) => {
     return generator;
 };
 
+// const filteredMcRaw = async (om, mc, filter, view) => {
+//     const pivot = om.multicubes
+//         .multicubesTab()
+//         .open(mc)
+//         .pivot(view)
+//         .addDependentContext(Number(filter));
+//     const grid = await pivot.createAsync();
+//     const generator = grid.range().generator();
+//     for await (const chunk of generator) {
+//         const raw = await chunk.rawDataAsync();
+//         return raw;
+//     }
+// };
+
 const filteredMcRaw = async (om, mc, filter, view) => {
     const pivot = om.multicubes
         .multicubesTab()
@@ -92,11 +148,9 @@ const filteredMcRaw = async (om, mc, filter, view) => {
         .pivot(view)
         .addDependentContext(Number(filter));
     const grid = await pivot.createAsync();
-    const generator = grid.range().generator();
-    for await (const chunk of generator) {
-        const raw = await chunk.rawDataAsync();
-        return raw;
-    }
+    const rd = grid.rawData();
+    const raw = await rd.readerAsync();
+    return raw;
 };
 
 const listPivotCreate = async (om, list, view) => {
@@ -107,14 +161,22 @@ const listPivotCreate = async (om, list, view) => {
     return listLabels;
 };
 
+// const listPivotCreateRaw = async (om, list, view) => {
+//     const listTab = om.lists.listsTab().open(list).pivot(view);
+//     const listGrid = await listTab.createAsync();
+//     const listGenerator = listGrid.range().generator();
+//     for await (const chunk of listGenerator) {
+//         const raw = await chunk.rawDataAsync();
+//         return raw;
+//     }
+// };
+
 const listPivotCreateRaw = async (om, list, view) => {
     const listTab = om.lists.listsTab().open(list).pivot(view);
     const listGrid = await listTab.createAsync();
-    const listGenerator = listGrid.range().generator();
-    for await (const chunk of listGenerator) {
-        const raw = await chunk.rawDataAsync();
-        return raw;
-    }
+    const rd = listGrid.rawData();
+    const raw = await rd.readerAsync();
+    return raw;
 };
 
 // === EMPLOYEE ===
@@ -172,7 +234,7 @@ const getDataSurvey = async (om, mc1, mc2, mc3, mc4) => {
     const rowsRequired = [];
 
     for (const item of [mc1, mc2, mc3, mc4]) {
-        const pivot = await pivotCreateGenerator(om, item);
+        const pivot = await pivotCreateRaw(om, item);
         await rowsCollect(pivot, rowsLabelsQuestions);
         await rowsArray(pivot, rowsRequired);
     }
@@ -258,12 +320,21 @@ const sendAnswer = async (
     mcFilterEmployees,
     listEmployees
 ) => {
-    const pivotListLabels = await listPivotCreateRaw(om, listSurveyQuestions);
-    const listLabels = await rowsCollectFromRaw(pivotListLabels);
+    // const pivotListLabels = await listPivotCreateRaw(om, listSurveyQuestions);
+    // const listLabels = await rowsCollectFromRaw(pivotListLabels);
+
+    const listLabels = await listPivotCreateRaw(om, listSurveyQuestions).then(
+        (pivotListLabels) => rowsCollectFromRaw(pivotListLabels)
+    );
+
     const listQuestionsValues = listLabels.map((item) => item[0].longId);
 
-    const pivotListFeedback = await listPivotCreateRaw(om, listFB);
-    const listFeedback = await rowsCollectFromRaw(pivotListFeedback);
+    // const pivotListFeedback = await listPivotCreateRaw(om, listFB);
+    // const listFeedback = await rowsCollectFromRaw(pivotListFeedback);
+
+    const listFeedback = await listPivotCreateRaw(om, listFB).then(
+        (pivotListFeedback) => rowsCollectFromRaw(pivotListFeedback)
+    );
 
     const listFeedbackItems = listFeedback.map((item) => {
         const feedbackItem = {};
@@ -272,8 +343,12 @@ const sendAnswer = async (
         return feedbackItem;
     });
 
-    const pivotSettings = await pivotCreateRaw(om, listSurveySettings);
-    const settingCubeId = await rowsCollectFromRaw(pivotSettings);
+    // const pivotSettings = await pivotCreateRaw(om, listSurveySettings);
+    // const settingCubeId = await rowsCollectFromRaw(pivotSettings);
+
+    const settingCubeId = await pivotCreateRaw(om, listSurveySettings).then(
+        (pivotSettings) => rowsCollectFromRaw(pivotSettings)
+    );
 
     const listQuestions = {};
     const listSettings = [];
@@ -439,11 +514,11 @@ const createChartData = (reportData) => {
         itemLabel.data = filteredRowsMarks
             .map((itemRowsMarks) => {
                 if (itemRowsMarks[itemRowsMarks.length - 1] === itemDataset) {
-                    return Number(itemRowsMarks[0].toFixed(2));
+                    return Number(parseFloat(itemRowsMarks[0]).toFixed(2));
                 }
             })
             .filter((itemRowsMarks) => itemRowsMarks > 0);
-        const settingsObjLp = lastProperty(rowsSettings[0]);
+        const settingsObjLp = lastProperty(rowsSettings[0]); //Н: "себя самого"
         //находим объект с itemDataset в кубе ITEM('L4.4 Виды оценки') (последнем)
         const settingsObj = rowsSettings.find(
             (item) => item[settingsObjLp] === itemDataset
@@ -557,7 +632,7 @@ const userTable = (
     // добавляет total строку
     let tfoot;
     if (total) {
-        const sumMarks = rowsArray.reduce((acc, item) => acc + item, 0);
+        const sumMarks = rowsArray.reduce((acc, item) => acc + Number(item), 0);
         const totalLabel = sample.element({ tag: "th", content: total });
         const totalValue = sample.element({
             tag: "td",
