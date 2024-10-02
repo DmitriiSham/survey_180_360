@@ -1,17 +1,17 @@
 @page {
-  size: A4;
-  margin: 15mm;
+    size: A4;
+    margin: 15mm;
 }
 
 @media print {
-
-    html, body {
+    html,
+    body {
         width: 210mm;
         height: 297mm;
     }
 
     body {
-        madrgin: 0;
+        margin: 0;
         color: #000;
         background-color: #fff;
     }
@@ -34,12 +34,6 @@ nav {
     padding-right: 2em;
 }
 
-// #chartContainer {
-//     position: relative;
-//     height: 52vh;
-//     width: 52vw;
-// }
-
 #chartContainer {
     height: 800px;
     width: 800px;
@@ -47,7 +41,8 @@ nav {
     margin: auto;
 }
 
-:root:not([data-theme=dark]), [data-theme=light] {
+:root:not([data-theme="dark"]),
+[data-theme="light"] {
     --pico-spacing: 0.2rem;
 }
 
