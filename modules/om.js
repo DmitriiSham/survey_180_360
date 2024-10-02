@@ -5,58 +5,25 @@ const sample = new Sample();
 
 // === RAW DATA ===
 
-// const rowsCollect = async (rawQuestionsArray, questionsArray) => {
-//     for await (const chunk of rawQuestionsArray) {
-//         const raw = await chunk.rawDataAsync();
-//         questionsArray.push(raw.rowsHeaders());
-//     }
-// };
-
 const rowsCollect = async (rawQuestionsArray, questionsArray) => {
-    const raw = await rawQuestionsArray.rows().headerData;
+    const raw = await rawQuestionsArray.rows().headerData();
     questionsArray.push(raw);
 };
 
-// const rowsCollectFromRaw = async (rawData) => {
-//     const questionsArray = rawData.rowsHeaders();
-//     return questionsArray;
-// };
-
-const rowsCollectFromRaw = async (rawData) => rawData.rows().headerData;
+const rowsCollectFromRaw = async (rawData) => rawData.rows().headerData();
 
 const rowsArray = async (rawQuestionsArray, questionsArray) => {
     const raw = await rawQuestionsArray.getRowsAsArray();
     questionsArray.push(raw);
 };
 
-// const rowsArrayFromRaw = async (rawData) => {
-//     const questionsArray = rawData.getRowsAsArray();
-//     return questionsArray;
-// };
-
 const rowsArrayFromRaw = async (rawData) => rawData.getRowsAsArray();
 
-// const rowsArrayValues = async (rawData) => {
-//     const questionsArray = rawData.getRawNativeValues();
-//     return questionsArray;
-// };
-
 const rowsArrayValues = async (rawData) => rawData.getRawNativeValues();
-
-// const rowsArrayTexts = async (rawData) => {
-//     const questionsArray = rawData.getRawTexts();
-//     return questionsArray;
-// };
 
 const rowsArrayTexts = async (rawData) => rawData.getRawTexts();
 
 // === COMMON ===
-
-// const getTextFields = async (om, mc) => {
-//     const pivotCommonMarks = await pivotCreateRaw(om, mc);
-//     const rowsRequired = await rowsArrayFromRaw(pivotCommonMarks);
-//     return rowsRequired;
-// };
 
 const getTextFields = async (om, mc) => {
     const rowsRequired = await pivotCreateRaw(om, mc).then((pivotCommonMarks) =>
@@ -64,13 +31,6 @@ const getTextFields = async (om, mc) => {
     );
     return rowsRequired;
 };
-
-// const pivotCreateGenerator = async (om, mc, view) => {
-//     const pivot = om.multicubes.multicubesTab().open(mc).pivot(view);
-//     const grid = await pivot.createAsync();
-//     const generator = grid.range().generator();
-//     return generator;
-// };
 
 const pivotCreateGenerator = async (om, mc, view) => {
     const pivot = om.multicubes.multicubesTab().open(mc).pivot(view);
@@ -80,16 +40,6 @@ const pivotCreateGenerator = async (om, mc, view) => {
     return raw;
 };
 
-// const pivotCreateRaw = async (om, mc, view) => {
-//     const pivot = om.multicubes.multicubesTab().open(mc).pivot(view);
-//     const grid = await pivot.createAsync();
-//     const generator = grid.range().generator();
-//     for await (const chunk of generator) {
-//         const raw = await chunk.rawDataAsync();
-//         return raw;
-//     }
-// };
-
 const pivotCreateRaw = async (om, mc, view) => {
     const pivot = om.multicubes.multicubesTab().open(mc).pivot(view);
     const grid = await pivot.createAsync();
@@ -97,16 +47,6 @@ const pivotCreateRaw = async (om, mc, view) => {
     const raw = await rd.readerAsync();
     return raw;
 };
-
-// const pivotCreateMulticubesRaw = async (om) => {
-//     const pivot = om.multicubes.multicubesTab().pivot();
-//     const grid = await pivot.createAsync();
-//     const generator = grid.range().generator();
-//     for await (const chunk of generator) {
-//         const raw = await chunk.rawDataAsync();
-//         return raw;
-//     }
-// };
 
 const pivotCreateMulticubesRaw = async (om) => {
     const pivot = om.multicubes.multicubesTab().pivot();
@@ -127,20 +67,6 @@ const filteredMcGenerator = async (om, mc, filter, view) => {
     return generator;
 };
 
-// const filteredMcRaw = async (om, mc, filter, view) => {
-//     const pivot = om.multicubes
-//         .multicubesTab()
-//         .open(mc)
-//         .pivot(view)
-//         .addDependentContext(Number(filter));
-//     const grid = await pivot.createAsync();
-//     const generator = grid.range().generator();
-//     for await (const chunk of generator) {
-//         const raw = await chunk.rawDataAsync();
-//         return raw;
-//     }
-// };
-
 const filteredMcRaw = async (om, mc, filter, view) => {
     const pivot = om.multicubes
         .multicubesTab()
@@ -153,6 +79,18 @@ const filteredMcRaw = async (om, mc, filter, view) => {
     return raw;
 };
 
+const filteredMcRawWriter = async (om, mc, filter, view) => {
+    const pivot = om.multicubes
+        .multicubesTab()
+        .open(mc)
+        .pivot(view)
+        .addDependentContext(Number(filter));
+    const grid = await pivot.createAsync();
+    const rd = grid.rawData();
+    const raw = await rd.writerAsync();
+    return raw;
+};
+
 const listPivotCreate = async (om, list, view) => {
     const listTab = om.lists.listsTab().open(list).pivot(view);
     const listGrid = await listTab.createAsync();
@@ -161,22 +99,58 @@ const listPivotCreate = async (om, list, view) => {
     return listLabels;
 };
 
-// const listPivotCreateRaw = async (om, list, view) => {
-//     const listTab = om.lists.listsTab().open(list).pivot(view);
-//     const listGrid = await listTab.createAsync();
-//     const listGenerator = listGrid.range().generator();
-//     for await (const chunk of listGenerator) {
-//         const raw = await chunk.rawDataAsync();
-//         return raw;
-//     }
-// };
-
 const listPivotCreateRaw = async (om, list, view) => {
     const listTab = om.lists.listsTab().open(list).pivot(view);
     const listGrid = await listTab.createAsync();
     const rd = listGrid.rawData();
     const raw = await rd.readerAsync();
     return raw;
+};
+
+const writerMcFiltered = async (
+    om,
+    mcAnswers,
+    filter,
+    values,
+    type,
+    arrayBoolean
+) => {
+    if (!["number", "string"].includes(type)) return false;
+    const rawDataMcAnswerWriter = await filteredMcRawWriter(
+        om,
+        mcAnswers,
+        filter
+    ); //raw
+    const rowsLongIds = rawDataMcAnswerWriter.rows().headerData();
+    const columnsLongIds = rawDataMcAnswerWriter.columns().getLongIdsByIndex(0);
+    const valueWriteParams = (items, param, paramType) => {
+        if (!!items[param]) {
+            return paramType === "number"
+                ? Number(items[param])
+                : items[param].toString();
+        } else {
+            return null;
+        }
+    };
+    // return columnsLongIds
+    rowsLongIds.forEach((item, index) => {
+        const rowLongId = rawDataMcAnswerWriter.rows().getLongIdsByIndex(index);
+        rawDataMcAnswerWriter.set(
+            rowLongId,
+            columnsLongIds,
+            !!arrayBoolean
+                ? valueWriteParams(values, index, type)
+                : valueWriteParams(
+                      values,
+                      rowLongId[rowLongId.length - 1],
+                      type
+                  )
+        );
+    });
+
+    await rawDataMcAnswerWriter.applyAsync();
+
+    return true;
 };
 
 // === EMPLOYEE ===
@@ -320,17 +294,12 @@ const sendAnswer = async (
     mcFilterEmployees,
     listEmployees
 ) => {
-    // const pivotListLabels = await listPivotCreateRaw(om, listSurveyQuestions);
-    // const listLabels = await rowsCollectFromRaw(pivotListLabels);
-
     const listLabels = await listPivotCreateRaw(om, listSurveyQuestions).then(
         (pivotListLabels) => rowsCollectFromRaw(pivotListLabels)
     );
+    // return listLabels;
 
     const listQuestionsValues = listLabels.map((item) => item[0].longId);
-
-    // const pivotListFeedback = await listPivotCreateRaw(om, listFB);
-    // const listFeedback = await rowsCollectFromRaw(pivotListFeedback);
 
     const listFeedback = await listPivotCreateRaw(om, listFB).then(
         (pivotListFeedback) => rowsCollectFromRaw(pivotListFeedback)
@@ -342,9 +311,6 @@ const sendAnswer = async (
         feedbackItem.text = item[0].label;
         return feedbackItem;
     });
-
-    // const pivotSettings = await pivotCreateRaw(om, listSurveySettings);
-    // const settingCubeId = await rowsCollectFromRaw(pivotSettings);
 
     const settingCubeId = await pivotCreateRaw(om, listSurveySettings).then(
         (pivotSettings) => rowsCollectFromRaw(pivotSettings)
@@ -380,68 +346,41 @@ const sendAnswer = async (
             listTexts.push(item[1]);
         }
     });
-    const generator1 = await filteredMcGenerator(om, mcAnswers1, filter);
-    if (generator1.length) {
-        const cb = om.common.createCellBuffer().canLoadCellsValues(false);
-        const label = await generator1[0].cellsAsync();
-        const labelGroup = label.all();
-        labelGroup.forEach((label, index) => {
-            if (!label.getValue() && !!listTexts[index]) {
-                cb.set(label, listTexts[index]);
-            }
-        });
-        await cb.applyAsync();
-    }
-
-    const generator2 = await filteredMcGenerator(om, mcAnswers2, filter);
-    if (generator2.length) {
-        const cb = om.common.createCellBuffer().canLoadCellsValues(false);
-        const label = await generator2[0].cellsAsync();
-        const labelGroup = label.all();
-        labelGroup.forEach((label, index) => {
-            if (!label.getValue() && !!listSettings[index]) {
-                cb.set(label, listSettings[index]);
-            }
-        });
-        await cb.applyAsync();
-    }
-
-    const generator3 = await filteredMcGenerator(om, mcAnswers3, filter);
-    if (generator3.length) {
-        const cb = om.common.createCellBuffer().canLoadCellsValues(false);
-        const label = await generator3[0].rowsAsync();
-        const labelGroup = await label.allAsync();
-        labelGroup.forEach((label) => {
-            let cell = label.cells().first();
-            if (
-                !cell.getValue() &&
-                cell.isEditable() &&
-                !!listQuestions[label.first().longId()]
-            ) {
-                cb.set(cell, listQuestions[label.first().longId()]);
-            }
-        });
-        await cb.applyAsync();
-    }
-
-    const generator4 = await filteredMcGenerator(om, mcAnswers4, filter);
-    if (generator4.length) {
-        const cb = om.common.createCellBuffer().canLoadCellsValues(false);
-        const label = await generator4[0].rowsAsync();
-        const labelGroup = await label.allAsync();
-        labelGroup.forEach((label) => {
-            let cell = label.cells().first();
-            if (
-                !cell.getValue() &&
-                cell.isEditable() &&
-                !!listFeedbacks[label.first().longId()]
-            ) {
-                cb.set(cell, listFeedbacks[label.first().longId()]);
-            }
-        });
-        await cb.applyAsync();
-        return !cb.count();
-    }
+    // return listTexts
+    await Promise.all([
+        await writerMcFiltered(
+            om,
+            mcAnswers1,
+            filter,
+            listTexts,
+            "string",
+            true
+        ),
+        await writerMcFiltered(
+            om,
+            mcAnswers2,
+            filter,
+            listSettings,
+            "number",
+            true
+        ),
+        await writerMcFiltered(
+            om,
+            mcAnswers3,
+            filter,
+            listQuestions,
+            "number",
+            false
+        ),
+        await writerMcFiltered(
+            om,
+            mcAnswers4,
+            filter,
+            listFeedbacks,
+            "string",
+            false
+        ),
+    ]);
 };
 
 // === REPORT ===
@@ -784,4 +723,6 @@ module.exports = {
     userTable,
     sortedSelect,
     reportNav,
+    filteredMcRawWriter,
+    writerMcFiltered,
 };

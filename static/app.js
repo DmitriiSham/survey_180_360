@@ -16,13 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     console.log("DOM fully loaded and parsed");
-    // var content = document.getElementById('content');
-    // if (content) {
-    //     content.style.display = 'block';
-    // } else {
-    //     console.log('Content not found');
-    // }
-    // document.body.style.overflow = 'auto';
 });
 
 async function sendForm(event, section, answers) {
@@ -54,11 +47,10 @@ async function sendForm(event, section, answers) {
 
     const url = `./sendAnswers${answers}?` + `data=${compressedUrl}`;
     toggleLoader();
-    const urlTest = `./sendAnswers${answers}?`;
-    await fetch(urlTest)
+    await fetch(url)
         .then((result) => {
             if (!result.ok) {
-                return fetch(urlTest).then((result) => {
+                return fetch(url).then((result) => {
                     if (!result.ok) {
                         console.log(result);
                         return Promise.reject(
@@ -78,7 +70,6 @@ async function sendForm(event, section, answers) {
         })
         .catch((error) => {
             console.error("Ошибка при получении schedule:", error.message);
-            console.log(error);
             document.getElementById(
                 "modalMessageError"
             ).innerHTML = `Ошибка при получении ответов: ${error.message}.</br> Пожалуйста попробуйте еще раз`;

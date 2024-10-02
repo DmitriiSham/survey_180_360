@@ -61,6 +61,7 @@ const questionText = (item) => {
         required: item.required,
         name: item.id,
         rows: 3,
+        spellcheck: "true",
     });
     const label = sample.element({
         tag: "label",
