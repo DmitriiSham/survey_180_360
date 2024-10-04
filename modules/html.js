@@ -10,34 +10,35 @@ function getRandomInt(min, max) {
 }
 
 const questionChoice = (item, firstHeader, hexColorBackgroundEntries) => {
-    // const testSelectedIndex = getRandomInt(0, item.options.length - 1); // предварительно выбранный пункт
+    const testSelectedIndex = getRandomInt(0, item.options.length - 1); // предварительно выбранный пункт
     const options = item.options.map((option, index) => {
-        const input = sample.element({
-            tag: "input",
-            type: item.type,
-            required: option.required,
-            name: item.id,
-            value: option.id,
-            onchange: `changeBackground(this,${firstHeader},'${hexColorBackgroundEntries}')`,
-        });
-        // index === testSelectedIndex
-        //     ? sample.element({
-        //         tag: "input",
-        //         type: item.type,
-        //         required: option.required,
-        //         name: item.id,
-        //         value: option.id,
-        //         checked: "checked",
-        //         onchange: `changeBackground(this,${firstHeader},'${hexColorBackgroundEntries}')`,
-        //     })
-        //     : sample.element({
-        //         tag: "input",
-        //         type: item.type,
-        //         required: option.required,
-        //         name: item.id,
-        //         value: option.id,
-        //         onchange: `changeBackground(this,${firstHeader},'${hexColorBackgroundEntries}')`,
-        //     });
+        // const input = sample.element({
+        //     tag: "input",
+        //     type: item.type,
+        //     required: option.required,
+        //     name: item.id,
+        //     value: option.id,
+        //     onchange: `changeBackground(this,${firstHeader},'${hexColorBackgroundEntries}')`,
+        // });
+        const input =
+            index === testSelectedIndex
+                ? sample.element({
+                      tag: "input",
+                      type: item.type,
+                      required: option.required,
+                      name: item.id,
+                      value: option.id,
+                      checked: "checked",
+                      onchange: `changeBackground(this,${firstHeader},'${hexColorBackgroundEntries}')`,
+                  })
+                : sample.element({
+                      tag: "input",
+                      type: item.type,
+                      required: option.required,
+                      name: item.id,
+                      value: option.id,
+                      onchange: `changeBackground(this,${firstHeader},'${hexColorBackgroundEntries}')`,
+                  });
         return sample.element({
             tag: "label",
             content: `${input}${option.text}`,
@@ -50,7 +51,11 @@ const questionChoice = (item, firstHeader, hexColorBackgroundEntries) => {
         content: `${legend}${options.join("")}`,
         id: item.id,
     });
-    return sample.element({ tag: "article", content: fieldset });
+    return sample.element({
+        tag: "article",
+        content: fieldset,
+        className: "afterSelect hidden",
+    });
 };
 
 const questionText = (item) => {
@@ -69,7 +74,11 @@ const questionText = (item) => {
         content: header,
     });
     const div = sample.div(`${label}${input}</textarea>`);
-    return sample.element({ tag: "article", content: div });
+    return sample.element({
+        tag: "article",
+        content: div,
+        className: "afterSelect hidden",
+    });
 };
 
 const questionSelect = (userItems, item, options) => {
@@ -77,16 +86,18 @@ const questionSelect = (userItems, item, options) => {
     const firstItem = [{ id: "firstItem", text: "Выберите сотрудника" }];
     const items = [...firstItem, ...userItems].map((item, index) =>
         sample.option(item.text, {
-            value: `${item.id}`,
+            value: index === 0 ? "placeholder" : `${item.id}`,
             selected: index === 0 ? "selected" : undefined,
             disabled: index === 0 ? "disabled" : undefined,
             hidden: index === 0 ? "hidden" : undefined,
-            required: "required",
+            // required: "required",
         })
     );
     const itemsSelect = sample.select(items.join(""), {
         ...options,
         className: "employee-select",
+        required: "required",
+        onchange: "showQuestions()",
     });
     const label = sample.element({
         tag: "label",
@@ -98,7 +109,8 @@ const questionSelect = (userItems, item, options) => {
 };
 
 const lastProperty = (array) => {
-    const settingsArr = Object.keys(array);
+    //индекс последнего элемента массива
+    const settingsArr = Object.keys(array); //возвращает массив строк, представляющих индексы элементов массива
     const property = settingsArr[settingsArr.length - 1];
     return property;
 };
