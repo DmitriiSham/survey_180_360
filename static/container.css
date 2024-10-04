@@ -48,3 +48,13 @@ article {
             rgba(129, 145, 181, 0.01698),
         0.0335rem 0.067rem 0.402rem rgba(129, 145, 181, 100.024);
 }
+
+.afterSelect {
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+.visible {
+    display: block;
+    opacity: 1;
+}

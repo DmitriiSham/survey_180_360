@@ -14,7 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
             sendForm(event, section, "360")
         );
     }
-
     console.log("DOM fully loaded and parsed");
 });
 
@@ -160,3 +159,14 @@ const resultOK = (modal) => {
         document.body.style.background = "rgba(0, 0, 0, 0)";
     }, 1000);
 };
+
+function showQuestions() {
+    const articles = document.querySelectorAll(".afterSelect");
+    articles.forEach((article) => {
+        article.classList.remove("hidden");
+        setTimeout(() => {
+            article.classList.add("visible");
+        }, 100);
+    });
+    console.log("Employee selected");
+}
