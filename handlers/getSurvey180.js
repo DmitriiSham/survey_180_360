@@ -145,6 +145,7 @@ OM.web("getSurvey180", async (request) => {
             "--pico-background-color": hexColorButton,
             "--pico-border-color": hexColorButton,
         },
+        className: "afterSelect hidden",
     });
     const form = sample.form(`${formContent.join("")}${button}`, {
         id: "form180",
@@ -172,15 +173,6 @@ OM.web("getSurvey180", async (request) => {
         onclick: "closeModal(this.dataset.target)",
         rel: "prev",
     });
-    // const buttonConfirmModal = sample.button("Попробовать еще раз", {
-    //     "data-target": "modalError",
-    //     onclick: "closeModal(this.dataset.target)",
-    //     autofocus: true,
-    //     style: {
-    //         "--pico-background-color": hexColorButton,
-    //         "--pico-border-color": hexColorButton,
-    //     },
-    // });
     const lastHeader = sample.element({
         tag: "header",
         content: `${lastHeaderH}`,

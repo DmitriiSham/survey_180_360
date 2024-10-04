@@ -148,6 +148,7 @@ OM.web("getSurvey360", async (request) => {
             "--pico-background-color": hexColorButton,
             "--pico-border-color": hexColorButton,
         },
+        className: "afterSelect hidden",
     });
     const form = sample.form(`${formContent.join("")}${button}`, {
         id: "form360",
