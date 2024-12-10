@@ -305,68 +305,64 @@ const sendAnswer = async (
             listTexts.push(item[1]);
         }
     });
-    const generator1 = await filteredMcGenerator(om, mcAnswers1, filter);
-    if (generator1.length) {
-        const cb = om.common.createCellBuffer().canLoadCellsValues(false);
-        const label = await generator1[0].cellsAsync();
-        const labelGroup = label.all();
-        labelGroup.forEach((label, index) => {
-            if (!label.getValue() && !!listTexts[index]) {
-                cb.set(label, listTexts[index]);
-            }
-        });
-        await cb.applyAsync();
-    }
 
-    const generator2 = await filteredMcGenerator(om, mcAnswers2, filter);
-    if (generator2.length) {
-        const cb = om.common.createCellBuffer().canLoadCellsValues(false);
-        const label = await generator2[0].cellsAsync();
-        const labelGroup = label.all();
-        labelGroup.forEach((label, index) => {
-            if (!label.getValue() && !!listSettings[index]) {
-                cb.set(label, listSettings[index]);
-            }
-        });
-        await cb.applyAsync();
-    }
-
-    const generator3 = await filteredMcGenerator(om, mcAnswers3, filter);
-    if (generator3.length) {
-        const cb = om.common.createCellBuffer().canLoadCellsValues(false);
-        const label = await generator3[0].rowsAsync();
-        const labelGroup = await label.allAsync();
-        labelGroup.forEach((label) => {
-            let cell = label.cells().first();
-            if (
-                !cell.getValue() &&
-                cell.isEditable() &&
-                !!listQuestions[label.first().longId()]
-            ) {
-                cb.set(cell, listQuestions[label.first().longId()]);
-            }
-        });
-        await cb.applyAsync();
-    }
-
-    const generator4 = await filteredMcGenerator(om, mcAnswers4, filter);
-    if (generator4.length) {
-        const cb = om.common.createCellBuffer().canLoadCellsValues(false);
-        const label = await generator4[0].rowsAsync();
-        const labelGroup = await label.allAsync();
-        labelGroup.forEach((label) => {
-            let cell = label.cells().first();
-            if (
-                !cell.getValue() &&
-                cell.isEditable() &&
-                !!listFeedbacks[label.first().longId()]
-            ) {
-                cb.set(cell, listFeedbacks[label.first().longId()]);
-            }
-        });
-        await cb.applyAsync();
-        return !cb.count();
-    }
+    await Promise.all([
+        filteredMcGenerator(om, mcAnswers1, filter).then(async (generator1) => {
+            const cb = om.common.createCellBuffer().canLoadCellsValues(false);
+            const label = await generator1[0].cellsAsync();
+            const labelGroup = label.all();
+            labelGroup.forEach((label, index) => {
+                if (!label.getValue() && !!listTexts[index]) {
+                    cb.set(label, listTexts[index]);
+                }
+            });
+            await cb.applyAsync();
+        }),
+        filteredMcGenerator(om, mcAnswers2, filter).then(async (generator2) => {
+            const cb = om.common.createCellBuffer().canLoadCellsValues(false);
+            const label = await generator2[0].cellsAsync();
+            const labelGroup = label.all();
+            labelGroup.forEach((label, index) => {
+                if (!label.getValue() && !!listSettings[index]) {
+                    cb.set(label, listSettings[index]);
+                }
+            });
+            await cb.applyAsync();
+        }),
+        filteredMcGenerator(om, mcAnswers3, filter).then(async (generator3) => {
+            const cb = om.common.createCellBuffer().canLoadCellsValues(false);
+            const label = await generator3[0].rowsAsync();
+            const labelGroup = await label.allAsync();
+            labelGroup.forEach((label) => {
+                let cell = label.cells().first();
+                if (
+                    !cell.getValue() &&
+                    cell.isEditable() &&
+                    !!listQuestions[label.first().longId()]
+                ) {
+                    cb.set(cell, listQuestions[label.first().longId()]);
+                }
+            });
+            await cb.applyAsync();
+        }),
+        filteredMcGenerator(om, mcAnswers4, filter).then(async (generator4) => {
+            const cb = om.common.createCellBuffer().canLoadCellsValues(false);
+            const label = await generator4[0].rowsAsync();
+            const labelGroup = await label.allAsync();
+            labelGroup.forEach((label) => {
+                let cell = label.cells().first();
+                if (
+                    !cell.getValue() &&
+                    cell.isEditable() &&
+                    !!listFeedbacks[label.first().longId()]
+                ) {
+                    cb.set(cell, listFeedbacks[label.first().longId()]);
+                }
+            });
+            await cb.applyAsync();
+            // return !cb.count();
+        }),
+    ]);
 };
 
 // === REPORT ===
@@ -616,7 +612,7 @@ const sortedSelect = (data, selectedUser) => {
     });
 
     const options = [
-        sample.option("Выберите пользователя", {
+        sample.option("Выберите сотрудника", {
             selected: !selectedUser,
             disabled: "disabled",
             value: "",
@@ -661,7 +657,7 @@ const reportNav = (select, selectedUser, paramsReportUser) => {
     const user = sample.strong(
         selectedUser && !!selectedUser.text
             ? selectedUser.text
-            : "Выберите пользователя"
+            : "Выберите сотрудника"
     );
     const userUl = sample.ul(
         sample.li(
