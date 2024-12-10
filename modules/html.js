@@ -10,35 +10,34 @@ function getRandomInt(min, max) {
 }
 
 const questionChoice = (item, firstHeader, hexColorBackgroundEntries) => {
-    const testSelectedIndex = getRandomInt(0, item.options.length - 1); // предварительно выбранный пункт
+    // const testSelectedIndex = getRandomInt(0, item.options.length - 1); // предварительно выбранный пункт
     const options = item.options.map((option, index) => {
-        // const input = sample.element({
-        //     tag: "input",
-        //     type: item.type,
-        //     required: option.required,
-        //     name: item.id,
-        //     value: option.id,
-        //     onchange: `changeBackground(this,${firstHeader},'${hexColorBackgroundEntries}')`,
-        // });
-        const input =
-            index === testSelectedIndex
-                ? sample.element({
-                      tag: "input",
-                      type: item.type,
-                      required: option.required,
-                      name: item.id,
-                      value: option.id,
-                      checked: "checked",
-                      onchange: `changeBackground(this,${firstHeader},'${hexColorBackgroundEntries}')`,
-                  })
-                : sample.element({
-                      tag: "input",
-                      type: item.type,
-                      required: option.required,
-                      name: item.id,
-                      value: option.id,
-                      onchange: `changeBackground(this,${firstHeader},'${hexColorBackgroundEntries}')`,
-                  });
+        const input = sample.element({
+            tag: "input",
+            type: item.type,
+            required: option.required,
+            name: item.id,
+            value: option.id,
+            onchange: `changeBackground(this,${firstHeader},'${hexColorBackgroundEntries}')`,
+        });
+        // const input = index === testSelectedIndex
+        //     ? sample.element({
+        //         tag: "input",
+        //         type: item.type,
+        //         required: option.required,
+        //         name: item.id,
+        //         value: option.id,
+        //         checked: "checked",
+        //         onchange: `changeBackground(this,${firstHeader},'${hexColorBackgroundEntries}')`,
+        //     })
+        //     : sample.element({
+        //         tag: "input",
+        //         type: item.type,
+        //         required: option.required,
+        //         name: item.id,
+        //         value: option.id,
+        //         onchange: `changeBackground(this,${firstHeader},'${hexColorBackgroundEntries}')`,
+        //     });
         return sample.element({
             tag: "label",
             content: `${input}${option.text}`,
@@ -153,6 +152,34 @@ function redirectToSign(params) {
     };
 }
 
+function reloadPage() {
+    const script = sample.element({
+        tag: "script",
+        content: `const reloadCount = parseInt(localStorage.getItem('reloadCount') || '0', 10);
+                if (reloadCount < 3) {
+                localStorage.setItem('reloadCount', reloadCount + 1);
+                setTimeout(() => {
+                window.location.reload();
+                }, 2000);
+                } else {
+                alert("Не удалось загрузить компоненты приложения. Свяжитесь с техподдержкой.");
+                localStorage.removeItem('reloadCount'); // Сброс счётчика
+                }`,
+    });
+    const html = sample.html({
+        lang: "ru",
+        title: "reload",
+        content: `<p>Приложение загружается...</p>${script}`,
+    });
+
+    return {
+        headers: {
+            contentType: "text/html",
+        },
+        body: html,
+    };
+}
+
 function hexToRgba(hex, alpha) {
     // Убираем символ '#', если он есть
     if (hex) {
@@ -178,4 +205,5 @@ module.exports = {
     rbStyle,
     redirectToSign,
     hexToRgba,
+    reloadPage,
 };

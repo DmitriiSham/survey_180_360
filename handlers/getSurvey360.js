@@ -7,6 +7,7 @@ const {
     redirectToSign,
     rbStyle,
     hexToRgba,
+    reloadPage,
 } = require("../modules/html.js");
 const {
     getDataSurvey,
@@ -23,6 +24,8 @@ const sample = new Sample();
 
 OM.web("getSurvey360", async (request) => {
     const { user, params } = request;
+
+    if (!LZString) return reloadPage();
 
     if (!user) {
         return redirectToSign(params);
